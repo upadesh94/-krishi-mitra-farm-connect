@@ -41,6 +41,7 @@ import com.example.krishimitra.data.model.SeedlingListing
 import com.example.krishimitra.data.model.imageResId
 import com.example.krishimitra.data.repository.KrishiRepository
 import com.example.krishimitra.ui.theme.*
+import com.example.krishimitra.ui.utils.SafeIntentLauncher
 
 @Composable
 fun MarketplaceScreen(
@@ -327,14 +328,7 @@ private fun openNearestNurseryMap(
     val nearest = nurseries.minByOrNull {
         distanceKm(userLocation.first, userLocation.second, it.latitude, it.longitude)
     } ?: return
-    val uri = Uri.parse(
-        "geo:${nearest.latitude},${nearest.longitude}?q=${nearest.latitude},${nearest.longitude}(${Uri.encode(nearest.name)})"
-    )
-    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-        setPackage("com.google.android.apps.maps")
-    }
-    if (intent.resolveActivity(context.packageManager) == null) intent.setPackage(null)
-    context.startActivity(intent)
+    SafeIntentLauncher.openMapLocation(context, nearest.latitude, nearest.longitude, nearest.name)
 }
 
 private fun distanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
@@ -745,8 +739,7 @@ fun NurseryCatalogCard(
                 ) {
                     OutlinedButton(
                         onClick = {
-                            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${nursery.phone}"))
-                            context.startActivity(intent)
+                            SafeIntentLauncher.dialPhoneNumber(context, nursery.phone)
                         },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier

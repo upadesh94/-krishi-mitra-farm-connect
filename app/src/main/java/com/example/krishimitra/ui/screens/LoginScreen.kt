@@ -61,14 +61,24 @@ fun LoginScreen(onLogin: () -> Unit) {
     LaunchedEffect(Unit) { showContent = true }
 
     fun signIn() {
-        if (email.isBlank() || password.isBlank()) {
+        val trimmedEmail = email.trim()
+        val trimmedPassword = password.trim()
+        if (trimmedEmail.isBlank() || trimmedPassword.isBlank()) {
             message = "Please enter your email and password."
+            return
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
+            message = "Please enter a valid email address."
+            return
+        }
+        if (trimmedPassword.length < 6) {
+            message = "Password must be at least 6 characters."
             return
         }
         scope.launch {
             isBusy = true
             message = null
-            FirebaseManager.signIn(email, password, selectedRole)
+            FirebaseManager.signIn(trimmedEmail, trimmedPassword, selectedRole)
                 .onSuccess { profile ->
                     KrishiRepository.setAuthenticatedUser(profile)
                     onLogin()

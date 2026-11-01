@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isNurseryOwner(ownerEmail) {
+      return isAuthenticated() && request.auth.token.email == ownerEmail;
+    }
+
+    // 1. User Profiles: each user can only read and write their own profile
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // 2. Nurseries: all authenticated users can read; only the nursery owner can edit
+    match /nurseries/{nurseryId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isNurseryOwner(resource.data.ownerEmail);
+    }
+
+    // 3. Seedlings Catalog: read-only for farmers; manageable by the nursery owner
+    match /seedlings/{seedlingId} {
+      allow read: if isAuthenticated();
+      allow create: if isNurseryOwner(request.resource.data.ownerEmail);
+      allow update, delete: if isNurseryOwner(resource.data.ownerEmail);
+    }
+
+    // 4. Pre-Orders: Accessible strictly by the ordering farmer and the recipient nursery
+    match /pre_orders/{orderId} {
+      allow create: if isAuthenticated() && request.resource.data.farmerId == request.auth.uid;
+      allow read: if isAuthenticated() && (
+        resource.data.farmerId == request.auth.uid ||
+        resource.data.nurseryOwnerEmail == request.auth.token.email
+      );
+      allow update: if isAuthenticated() && (
+        resource.data.farmerId == request.auth.uid ||
+        resource.data.nurseryOwnerEmail == request.auth.token.email
+      );
+      allow delete: if isAuthenticated() && resource.data.farmerId == request.auth.uid && resource.data.status == 'REQUESTED';
+    }
+
+    // 5. In-App Notifications: Accessible only by the targeted recipient
+    match /notifications/{notifId} {
+      allow read, update: if isAuthenticated() && (
+        resource.data.targetUserId == request.auth.uid ||
+        resource.data.targetUserId == 'owner:' + request.auth.token.email
+      );
+      allow create: if isAuthenticated();
+    }
+
+    // 6. Disease Reports: Public read within community, write by creator
+    match /disease_reports/{reportId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.reporterId == request.auth.uid;
+    }
+
+    // Deny all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -40,6 +40,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.krishimitra.data.model.*
 import com.example.krishimitra.data.repository.KrishiRepository
 import com.example.krishimitra.ui.theme.*
+import com.example.krishimitra.ui.utils.SafeIntentLauncher
 import java.util.UUID
 
 private enum class OwnerNavTab(val label: String, val icon: ImageVector) {
@@ -920,8 +921,7 @@ private fun OwnerOrderCard(order: PreOrder) {
             ) {
                 OutlinedButton(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${order.farmerPhone}"))
-                        context.startActivity(intent)
+                        SafeIntentLauncher.dialPhoneNumber(context, order.farmerPhone)
                     },
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier

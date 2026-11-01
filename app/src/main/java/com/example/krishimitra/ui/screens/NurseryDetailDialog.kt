@@ -29,6 +29,7 @@ import com.example.krishimitra.data.model.Nursery
 import com.example.krishimitra.data.model.SeedlingListing
 import com.example.krishimitra.data.model.imageResId
 import com.example.krishimitra.ui.theme.*
+import com.example.krishimitra.ui.utils.SafeIntentLauncher
 
 @Composable
 fun NurseryDetailDialog(
@@ -233,8 +234,7 @@ fun NurseryDetailDialog(
                     ) {
                         Button(
                             onClick = {
-                                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${nursery.phone}"))
-                                context.startActivity(intent)
+                                SafeIntentLauncher.dialPhoneNumber(context, nursery.phone)
                             },
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -258,9 +258,7 @@ fun NurseryDetailDialog(
 
                         OutlinedButton(
                             onClick = {
-                                val uri = Uri.parse("geo:${nursery.latitude},${nursery.longitude}?q=${nursery.latitude},${nursery.longitude}(${Uri.encode(nursery.name)})")
-                                val intent = Intent(Intent.ACTION_VIEW, uri)
-                                context.startActivity(intent)
+                                SafeIntentLauncher.openMapLocation(context, nursery.latitude, nursery.longitude, nursery.name)
                             },
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier

@@ -474,6 +474,26 @@ object KrishiRepository {
         _currentUser.value = profile
     }
 
+    fun clearSession() {
+        firebaseOrderListener?.remove()
+        firebaseOrderListener = null
+        firebaseNotificationListener?.remove()
+        firebaseNotificationListener = null
+        _currentUser.value = UserProfile(
+            name = "Farmer",
+            phone = "+91 98765 43210",
+            location = "Pune, Maharashtra",
+            taluka = "Haveli",
+            district = "Pune",
+            farmSizeAcres = 3.5,
+            soilType = "Medium Black Soil",
+            waterSource = "Borewell & Drip Irrigation",
+            preferredLanguage = "English",
+            role = UserRole.FARMER,
+            email = "farmer.demo@krishimitra.in"
+        )
+    }
+
     fun updateLanguage(lang: String) {
         _currentUser.value = _currentUser.value.copy(preferredLanguage = lang)
     }

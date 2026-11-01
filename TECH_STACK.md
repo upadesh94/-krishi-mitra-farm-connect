@@ -214,3 +214,18 @@ KrishiMitra/
 | **Google Play Location**| `com.google.android.gms:play-services-location` | `21.3.0` | Fused location tracking & distance |
 | **Kotlin Coroutines** | Built-in with Kotlin / AndroidX | `2.0.21` | Reactive streams & concurrency |
 
+---
+
+## 11. Security & Privacy Architecture
+
+| Security Domain | Defense Mechanism | Standard / Specification |
+|---|---|---|
+| **Data Backup & Extraction** | `android:allowBackup="false"` with explicit exclude rules in `backup_rules.xml` & `data_extraction_rules.xml` | OWASP MASVS-STORAGE-8 |
+| **Network Transport Security** | Strict TLS enforcement via `network_security_config.xml` (`cleartextTrafficPermitted="false"`) | OWASP MASVS-NETWORK-1 |
+| **Intent & Telephony Safety** | Android 11+ `<queries>` declarations + `SafeIntentLauncher` with phone sanitization and missing-activity fallback | OWASP MASVS-PLATFORM-1 |
+| **Credential & Secret Protection** | Git-ignored `google-services.json` with dummy `.example` template, zero hardcoded credentials | OWASP MASVS-AUTH-1 |
+| **Release Hardening & Obfuscation** | R8 rules in `proguard-rules.pro` stripping `Log.d` / `Log.v` statements and preserving models | OWASP MASVS-RESILIENCE-1 |
+| **Cloud Access Control** | Declarative `firestore.rules` enforcing role boundaries between farmers and nurseries | OWASP Top 10 A01: Broken Access Control |
+| **Session Lifecycle** | `KrishiRepository.clearSession()` detaches all Firestore live listeners and wipes session state upon sign-out | OWASP MASVS-AUTH-12 |
+
+

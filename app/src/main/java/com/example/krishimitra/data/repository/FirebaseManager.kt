@@ -11,7 +11,6 @@ import kotlinx.coroutines.tasks.await
 
 object FirebaseManager {
     private const val TAG = "FirebaseManager"
-    const val DEMO_PASSWORD = "112233"
     private var isFirebaseAvailable = false
 
     private var auth: FirebaseAuth? = null
@@ -224,24 +223,6 @@ object FirebaseManager {
             Result.failure(e)
         }
     }
-
-    suspend fun createDemoAccounts(): Result<Int> {
-        val demoAccounts = listOf(
-            Triple("ram@gmail.com", "Ram", UserRole.FARMER),
-            Triple("yogesh@gmail.com", "Yogesh", UserRole.FARMER),
-            Triple("pragatiseed@gmail.com", "Pragati Seed", UserRole.NURSERY_OWNER)
-        )
-        var created = 0
-        demoAccounts.forEach { (email, name, role) ->
-            val result = createAccount(email, DEMO_PASSWORD, name, role)
-            if (result.isSuccess) created++
-            if (firebaseAuthOrNull()?.currentUser != null) firebaseAuthOrNull()?.signOut()
-        }
-        return if (created > 0) Result.success(created)
-        else Result.failure(IllegalStateException("No demo accounts were created. They may already exist."))
-    }
-
-    private fun firebaseAuthOrNull(): FirebaseAuth? = auth
 
     private fun UserProfile.toFirestoreMap(): Map<String, Any> = mapOf(
         "uid" to uid,

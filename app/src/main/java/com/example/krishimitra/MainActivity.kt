@@ -49,8 +49,8 @@ class MainActivity : ComponentActivity() {
                     NurseryOwnerDashboard(
                         onSignOut = {
                             FirebaseManager.signOut()
+                            KrishiRepository.clearSession()
                             isAuthenticated = false
-                            KrishiRepository.login("", com.example.krishimitra.data.model.UserRole.FARMER, "")
                         }
                     )
                 } else {
@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
                                 NavigationTab.PROFILE -> ProfileScreen(
                                     onSignOut = {
                                         FirebaseManager.signOut()
+                                        KrishiRepository.clearSession()
                                         isAuthenticated = false
                                         currentTab = NavigationTab.HOME
                                     }
